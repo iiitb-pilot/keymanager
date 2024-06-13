@@ -33,6 +33,11 @@ ARG hsm_client_zip_path
 # can be passed during Docker build as build time environment management rmi server port
 #ARG management_jmxremote_rmi_port
 
+# can be passed during Docker build as build time environment for CloudHSM IP Address
+ARG cloudhsm_ip_address
+
+ARG cloudhsm_keystore_impl_url
+
 # environment variable to pass active profile such as DEV, QA etc at docker runtime
 ENV active_profile_env=${active_profile}
 
@@ -58,6 +63,12 @@ ENV hsm_zip_file_path=${hsm_client_zip_path}
 
 # environment variable to pass management rmi server port, at docker runtime
 #ENV management_jmxremote_rmi_port_env=${management_jmxremote_rmi_port}
+
+# environment variable to pass cloudhsm_ip_address, at docker runtime
+ENV cloudhsm_ip_address_env=${cloudhsm_ip_address}
+
+# environment variable to pass KeyImplementation for cloudhsm, at docker runtime
+ENV cloudhsm_keystore_impl_url_env = ${cloudhsm_keystore_impl_url}
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user=mosip
@@ -94,11 +105,9 @@ RUN mkdir -p ${loader_path}
 
 ENV loader_path_env=${loader_path}
 
-ADD configure_start.sh configure_start.sh
+ADD configure_start_cloudhsm.sh configure_start_cloudhsm.sh
 
-ADD ./lib/* "${loader_path_env}"/
-
-RUN chmod +x configure_start.sh
+RUN chmod +x configure_start_cloudhsm.sh
 
 # creating folder to copy additional supporting jar files required at run-time.
 #RUN mkdir -p /home/${container_user}/additional-jars
@@ -117,7 +126,7 @@ USER ${container_user_uid}:${container_user_gid}
 EXPOSE 8088
 EXPOSE 9010
 
-ENTRYPOINT [ "./configure_start.sh" ]
+ENTRYPOINT [ "./configure_start_cloudhsm.sh" ]
 CMD if [ "$is_glowroot_env" = "present" ]; then \
     wget -q "${artifactory_url_env}"/artifactory/libs-release-local/io/mosip/testing/glowroot.zip ; \
     unzip glowroot.zip ; \
