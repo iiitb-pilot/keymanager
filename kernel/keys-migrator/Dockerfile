@@ -89,9 +89,7 @@ RUN apt-get -y update \
 && adduser ${container_user} sudo \
 && echo "%sudo ALL=(ALL) NOPASSWD:/home/${container_user}/${hsm_local_dir}/install.sh" >> /etc/sudoers \
 && mkdir -p ${loader_path} \
-&& chmod +x /home/${container_user}/configure_start.sh \
-&& chmod a-w /home/${container_user}/configure_start.sh \
-&& chown -R ${container_user}:${container_user} /home/${container_user}
+&& chmod +x configure_start.sh
 
 ENTRYPOINT [ "./configure_start.sh" ]
 
